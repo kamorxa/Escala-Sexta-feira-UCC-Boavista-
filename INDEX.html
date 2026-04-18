@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Escala de Turno - Sextas-Feiras 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #151820;
+      --card:      #1b1f2b;
+      --border:    #272c3a;
+      --accent:    #f5c842;
+      --accent2:   #e07b3c;
+      --text:      #e8eaf0;
+      --muted:     #6b7080;
+      --green:     #4ade80;
+      --red:       #f87171;
+      --blue:      #60a5fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999;
+      opacity: .5;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 3rem 2.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '2026';
+      position: absolute;
+      right: -1rem; top: -1rem;
+      font-family: 'DM Serif Display', serif;
+      font-size: 11rem;
+      color: rgba(245,200,66,.04);
+      letter-spacing: -6px;
+      pointer-events: none;
+      user-select: none;
+    }
+    .tag {
+      display: inline-block;
+      background: var(--accent);
+      color: #000;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .25rem .75rem;
+      border-radius: 2px;
+      width: fit-content;
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      color: var(--text);
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 300;
+    }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stats {
+      display: flex;
+      gap: 2rem;
+      flex: 1;
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: .7rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .65rem 1.4rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      transition: all .18s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+    .btn-primary:hover { background: #f0d060; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── LEGEND CHIPS ── */
+    .legend {
+      padding: .75rem 2.5rem;
+      display: flex;
+      gap: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .75rem; color: var(--muted);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── MONTH BLOCK ── */
+    .months-grid {
+      padding: 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    .month-block {
+      animation: fadeUp .4s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .month-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .month-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+    .month-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .month-count {
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      color: var(--muted);
+    }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; border-radius: 6px; border: 1px solid var(--border); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+    thead tr {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      padding: .7rem 1rem;
+      text-align: left;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(245,200,66,.04); }
+    td {
+      padding: .75rem 1rem;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .seq {
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+    .date-cell {
+      font-family: 'DM Mono', monospace;
+      font-size: .88rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .week-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      background: rgba(245,200,66,.12);
+      color: var(--accent);
+      padding: .15rem .5rem;
+      border-radius: 3px;
+    }
+    .status-select {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .8rem;
+      padding: .25rem .5rem;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .status-select:hover { border-color: var(--accent); }
+    .status-select option { background: var(--card); }
+    .resp-input {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .8rem;
+      padding: .25rem .6rem;
+      width: 140px;
+      transition: border-color .15s, background .15s;
+    }
+    .resp-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(245,200,66,.05);
+    }
+    .obs-input {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .8rem;
+      padding: .25rem .6rem;
+      width: 200px;
+      transition: border-color .15s;
+    }
+    .obs-input:focus { outline: none; border-color: var(--accent); }
+
+    /* holiday row */
+    tr.holiday { background: rgba(248,113,113,.04); }
+    tr.holiday .date-cell { color: var(--red); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 2.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+
+    /* ICON svg */
+    .icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    @media (max-width: 640px) {
+      header, .toolbar, .legend, .months-grid, footer { padding-left: 1rem; padding-right: 1rem; }
+      .stats { gap: 1rem; }
+      .stat-value { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="tag">Turno Tarde</span>
+  <h1>Escala de <em>Sextas-feiras</em></h1>
+  <p class="subtitle">Turno da Tarde &mdash; Janeiro a Dezembro de 2026</p>
+</header>
+
+<div class="toolbar">
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-value" id="totalFridays">52</span>
+      <span class="stat-label">Sextas-feiras</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">12</span>
+      <span class="stat-label">Meses</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value" id="holidayCount">0</span>
+      <span class="stat-label">Feriados</span>
+    </div>
+  </div>
+  <button class="btn btn-ghost" onclick="clearAll()">
+    <svg class="icon" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+    Limpar
+  </button>
+  <button class="btn btn-primary" onclick="exportCSV()">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Exportar Excel / CSV
+  </button>
+</div>
+
+<div class="legend">
+  <div class="chip"><div class="dot" style="background:var(--green)"></div> Normal</div>
+  <div class="chip"><div class="dot" style="background:var(--red)"></div> Feriado</div>
+  <div class="chip"><div class="dot" style="background:var(--accent2)"></div> Folga</div>
+  <div class="chip"><div class="dot" style="background:var(--blue)"></div> Plantao Extra</div>
+  <div class="chip"><div class="dot" style="background:var(--muted)"></div> Sem Escala</div>
+</div>
+
+<div class="months-grid" id="monthsGrid"></div>
+
+<footer>
+  <span>Escala Turno Tarde &mdash; 2026</span>
+  <span>Gerado em <span id="genDate"></span></span>
+</footer>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────────
+  const MONTHS_PT = [
+    'Janeiro','Fevereiro','Marco','Abril','Maio','Junho',
+    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'
+  ];
+
+  // Brazilian national holidays that fall on Friday in 2026
+  const HOLIDAYS_2026 = {
+    '2026-01-02': 'Confraternizacao Universal',
+    '2026-04-03': 'Sexta-feira Santa',
+    '2026-04-17': 'Tiradentes',
+    '2026-05-01': 'Dia do Trabalho',
+    '2026-09-04': 'Independencia do Brasil (pont.)',
+    '2026-10-02': 'Dia das Criancas (pont.)',
+    '2026-11-20': 'Consciencia Negra',
+    '2026-12-25': 'Natal',
+  };
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+  function isoDate(y,m,d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
+
+  function getAllFridays2026() {
+    const fridays = [];
+    const date = new Date(2026, 0, 1);
+    // advance to first Friday
+    while (date.getDay() !== 5) date.setDate(date.getDate() + 1);
+    let week = 0;
+    while (date.getFullYear() === 2026) {
+      week++;
+      const iso = isoDate(date.getFullYear(), date.getMonth(), date.getDate());
+      fridays.push({
+        seq: week,
+        iso,
+        day: date.getDate(),
+        month: date.getMonth(),
+        weekNum: week,
+        label: `${pad(date.getDate())}/${pad(date.getMonth()+1)}/2026`,
+        holiday: HOLIDAYS_2026[iso] || null,
+        dayOfYear: Math.ceil((date - new Date(2026,0,1)) / 86400000) + 1,
+      });
+      date.setDate(date.getDate() + 7);
+    }
+    return fridays;
+  }
+
+  const allFridays = getAllFridays2026();
+
+  // group by month
+  function groupByMonth(fridays) {
+    const map = {};
+    for (const f of fridays) {
+      if (!map[f.month]) map[f.month] = [];
+      map[f.month].push(f);
+    }
+    return map;
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────────────
+  function render() {
+    const grid = document.getElementById('monthsGrid');
+    grid.innerHTML = '';
+    const byMonth = groupByMonth(allFridays);
+
+    Object.keys(byMonth).sort((a,b)=>a-b).forEach((mIdx, i) => {
+      const rows = byMonth[mIdx];
+      const block = document.createElement('div');
+      block.className = 'month-block';
+      block.style.animationDelay = `${i * 60}ms`;
+
+      block.innerHTML = `
+        <div class="month-header">
+          <span class="month-name">${MONTHS_PT[mIdx]}</span>
+          <div class="month-line"></div>
+          <span class="month-count">${rows.length} sexta${rows.length > 1 ? 's' : ''}</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Data</th>
+                <th>Semana</th>
+                <th>Horario</th>
+                <th>Responsavel</th>
+                <th>Status</th>
+                <th>Observacoes</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(f => `
+                <tr class="${f.holiday ? 'holiday' : ''}" data-iso="${f.iso}">
+                  <td class="seq">${String(f.seq).padStart(2,'0')}</td>
+                  <td class="date-cell">${f.label}${f.holiday ? `<br><small style="color:var(--red);font-size:.68rem">${f.holiday}</small>` : ''}</td>
+                  <td><span class="week-badge">S${f.seq}</span></td>
+                  <td>
+                    <select class="status-select" onchange="updateColor(this)" data-field="horario" data-iso="${f.iso}">
+                      <option value="13:00-17:00">13:00 - 17:00</option>
+                      <option value="12:00-18:00">12:00 - 18:00</option>
+                      <option value="14:00-18:00">14:00 - 18:00</option>
+                      <option value="Personalizado">Personalizado</option>
+                    </select>
+                  </td>
+                  <td><input class="resp-input" type="text" placeholder="Nome do responsavel" data-field="responsavel" data-iso="${f.iso}"/></td>
+                  <td>
+                    <select class="status-select" onchange="updateColor(this)" data-field="status" data-iso="${f.iso}">
+                      <option value="Normal">Normal</option>
+                      <option value="Feriado" ${f.holiday ? 'selected' : ''}>Feriado</option>
+                      <option value="Folga">Folga</option>
+                      <option value="Plantao Extra">Plantao Extra</option>
+                      <option value="Sem Escala">Sem Escala</option>
+                    </select>
+                  </td>
+                  <td><input class="obs-input" type="text" placeholder="Adicionar nota..." data-field="obs" data-iso="${f.iso}"/></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      grid.appendChild(block);
+    });
+
+    // update counters
+    document.getElementById('totalFridays').textContent = allFridays.length;
+    document.getElementById('holidayCount').textContent = allFridays.filter(f=>f.holiday).length;
+    document.getElementById('genDate').textContent = new Date().toLocaleDateString('pt-BR');
+  }
+
+  // ── STATUS COLOR ──────────────────────────────────────────────────────
+  function updateColor(sel) {
+    if (sel.dataset.field !== 'status') return;
+    const row = sel.closest('tr');
+    const colors = {
+      'Normal':        'rgba(74,222,128,.08)',
+      'Feriado':       'rgba(248,113,113,.08)',
+      'Folga':         'rgba(224,123,60,.08)',
+      'Plantao Extra': 'rgba(96,165,250,.08)',
+      'Sem Escala':    'rgba(107,112,128,.08)',
+    };
+    row.style.background = colors[sel.value] || '';
+  }
+
+  // ── COLLECT DATA ──────────────────────────────────────────────────────
+  function collectRows() {
+    const rows = document.querySelectorAll('tbody tr[data-iso]');
+    return Array.from(rows).map(row => {
+      const iso = row.dataset.iso;
+      const friday = allFridays.find(f => f.iso === iso);
+      return {
+        Sequencia:    friday.seq,
+        Data:         friday.label,
+        Mes:          MONTHS_PT[friday.month],
+        Semana:       `S${friday.seq}`,
+        Horario:      row.querySelector('[data-field="horario"]')?.value || '',
+        Responsavel:  row.querySelector('[data-field="responsavel"]')?.value || '',
+        Status:       row.querySelector('[data-field="status"]')?.value || '',
+        Feriado:      friday.holiday || '',
+        Observacoes:  row.querySelector('[data-field="obs"]')?.value || '',
+      };
+    });
+  }
+
+  // ── EXPORT CSV ────────────────────────────────────────────────────────
+  function exportCSV() {
+    const data = collectRows();
+    const headers = Object.keys(data[0]);
+    const csvRows = [
+      headers.join(';'),
+      ...data.map(r => headers.map(h => `"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(';'))
+    ];
+    const bom = '\uFEFF'; // UTF-8 BOM for Excel
+    const blob = new Blob([bom + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Escala_Sextas_2026.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── CLEAR ALL ─────────────────────────────────────────────────────────
+  function clearAll() {
+    document.querySelectorAll('.resp-input, .obs-input').forEach(i => i.value = '');
+    document.querySelectorAll('[data-field="status"]').forEach(s => { s.value = 'Normal'; updateColor(s); });
+    document.querySelectorAll('[data-field="horario"]').forEach(s => s.value = '13:00-17:00');
+  }
+
+  render();
+</script>
+</body>
+</html>
